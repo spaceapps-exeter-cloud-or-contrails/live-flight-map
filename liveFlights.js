@@ -29,7 +29,7 @@ var yourLocation = {lat:50.718412, lon:-3.533899},
 				var positions = aircraftHistory[aircraft].positions,
 					position = positions[positions.length - 1];
 				marker = L.marker([position.lat, position.lon], {icon: aircraftIcon, rotationAngle: -45 + aircraftHistory[aircraft].heading , rotationOrigin: 'center'});
-				marker.bindPopup('<p>Aircraft: ' + aircraftHistory[aircraft].type + '<br>Estimated Temp:' + height_temp + "°" + current_timestep.temperature.units +  '<br>Altitude: FL' + aircraftHistory[aircraft].altitude + '<br>Departure: ' + aircraftHistory[aircraft].origin + '<br>Destination: ' + aircraftHistory[aircraft].destination + '</p>', {
+				marker.bindPopup('<p>Aircraft: ' + aircraftHistory[aircraft].type + '<br>Altitude: FL' + aircraftHistory[aircraft].altitude + '<br>Departure: ' + aircraftHistory[aircraft].origin + '<br>Destination: ' + aircraftHistory[aircraft].destination + '</p>', {
 					showOnMouseOver: true
 				});
 				marker.on('mouseover', function () {
