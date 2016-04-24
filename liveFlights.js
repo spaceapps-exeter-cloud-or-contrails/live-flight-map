@@ -49,20 +49,43 @@ var yourLocation = {lat:50.718412, lon:-3.533899},
 		map.addLayer(markers);
 		map.addLayer(tracks);
 	},
+	getHistoryForAircraft = function (aircraft) {
+		$.ajax({
+			url: 'http://rachelPrudden:a3db0b3725f7a4f4a20525e78afe557cecdc554c@flightxml.flightaware.com/json/FlightXML2/GetLastTrack',
+			data: {
+				ident: aircraft.ident
+			},
+			success: function (result) {
+				var data, i, position, positions = [];
+				if (result.GetLastTrackResult) {
+					data = result.GetLastTrackResult.data;
+					positions = [];
+					for (i=0; i < data.length; i++) {
+						position = data[i];
+						positions.push({lat:position.latitude, lon: position.longitude});
+					}
+				} else {
+					positions.push({lat: aircraft.latitude, lon: aircraft.longitude});
+				}
+
+				aircraftHistory[aircraft.ident] = {
+					heading: aircraft.heading,
+					type: aircraft.type,
+					origin: aircraft.origin,
+					altitude: aircraft.altitude,
+					destination: aircraft.destination,
+					positions: positions
+				}
+
+			},
+			dataType: 'jsonp',
+			jsonp: 'jsonp_callback',
+			xhrFields: {withCredentials: true}
+		});
+	},
 	buildHistory = function (aircraft) {
 		for (var i=0; i < aircraft.length; i++) {
-			if (aircraftHistory[aircraft[i].ident]) {
-				aircraftHistory[aircraft[i].ident].positions.push({lat: aircraft[i].latitude, lon: aircraft[i].longitude});
-			} else {
-				aircraftHistory[aircraft[i].ident] = {
-					heading: aircraft[i].heading,
-					type: aircraft[i].type,
-					origin:aircraft[i].origin,
-					altitude:aircraft[i].altitude,
-					destination:aircraft[i].destination,
-					positions: [{lat: aircraft[i].latitude, lon: aircraft[i].longitude}]
-				}
-			}
+			getHistoryForAircraft(aircraft[i]);
 		}
 	},
 	getAndPlotAircraft = function () {
@@ -71,7 +94,7 @@ var yourLocation = {lat:50.718412, lon:-3.533899},
 			data: {
 				query: '-aboveAltitude 250 -latlong  {52.143602 -6.300659 49.869857 -1.049194}'
 			},
-			success: function (result) {
+				success: function (result) {
 				buildHistory(result.SearchResult.aircraft);
 				plotAircraft(result.SearchResult.aircraft);
 			},
@@ -86,5 +109,5 @@ $(document).ready(function () {
 	getAndPlotAircraft();
 	window.setInterval(function(){
 		getAndPlotAircraft();
-	}, 5000);
+	}, 10000);
 });
