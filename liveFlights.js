@@ -64,6 +64,7 @@ var yourLocation = {lat:50.718412, lon:-3.533899},
 		}
 	},
 	getHistoryForAircraft = function (aircraft) {
+		//TODO, check here if we've already got it, if so, no need to get it again, just add the current position into the array
 		$.ajax({
 			url: 'http://rachelPrudden:a3db0b3725f7a4f4a20525e78afe557cecdc554c@flightxml.flightaware.com/json/FlightXML2/GetLastTrack', //TODO don't hard code the login info
 			data: {
@@ -89,8 +90,8 @@ var yourLocation = {lat:50.718412, lon:-3.533899},
 					altitude: aircraft.altitude,
 					destination: aircraft.destination,
 					positions: positions
-				}
-
+				};
+				plotAircraft(aircraft);
 			},
 			dataType: 'jsonp',
 			jsonp: 'jsonp_callback',
@@ -111,7 +112,6 @@ var yourLocation = {lat:50.718412, lon:-3.533899},
 			},
 				success: function (result) {
 				buildHistory(result.SearchResult.aircraft);
-				plotAircraft(result.SearchResult.aircraft);
 			},
 			dataType: 'jsonp',
 			jsonp: 'jsonp_callback',
