@@ -1,6 +1,6 @@
 {
   "name": "live-flight-map",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Space Apps 2016 cloud or contrails challenge",
   "main": "index.html",
   "scripts": {
