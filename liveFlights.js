@@ -11,6 +11,19 @@ var yourLocation = {lat:50.718412, lon:-3.533899},
 		iconAnchor:   [10, 10], // point of the icon which will correspond to marker's location
 		popupAnchor:  [-3, -10] // point from which the popup should open relative to the iconAnchor
 	}),
+	init = function (){// kick stuff off, this happens after geolocation
+		L.marker([yourLocation.lat,yourLocation.lon]).addTo(map);
+		getAndPlotAircraft();
+		window.setInterval(function(){
+			getAndPlotAircraft();
+		}, 20000);
+	},
+	getBoundingBox = function () {
+		return {
+			nw: {lat: yourLocation.lat + 1.5, lon: yourLocation.lon - 2},
+			se: {lat: yourLocation.lat - 1.5, lon: yourLocation.lon + 2}
+		};
+	},
 	getContrailProbability = function (altitude) {
 		if (altitude > 350) {
 			return 'red';
@@ -24,6 +37,9 @@ var yourLocation = {lat:50.718412, lon:-3.533899},
 		map.removeLayer(markers);
 		map.removeLayer(tracks);
 		markers = new L.FeatureGroup();
+		tracks = new L.FeatureGroup();
+		map.addLayer(markers);
+		map.addLayer(tracks);
 		for (var aircraft in aircraftHistory) {
 			if (aircraftHistory.hasOwnProperty(aircraft)) {
 				var positions = aircraftHistory[aircraft].positions,
@@ -46,12 +62,10 @@ var yourLocation = {lat:50.718412, lon:-3.533899},
 				markers.addLayer(marker);
 			}
 		}
-		map.addLayer(markers);
-		map.addLayer(tracks);
 	},
 	getHistoryForAircraft = function (aircraft) {
 		$.ajax({
-			url: 'http://rachelPrudden:a3db0b3725f7a4f4a20525e78afe557cecdc554c@flightxml.flightaware.com/json/FlightXML2/GetLastTrack',
+			url: 'http://rachelPrudden:a3db0b3725f7a4f4a20525e78afe557cecdc554c@flightxml.flightaware.com/json/FlightXML2/GetLastTrack', //TODO don't hard code the login info
 			data: {
 				ident: aircraft.ident
 			},
@@ -89,10 +103,11 @@ var yourLocation = {lat:50.718412, lon:-3.533899},
 		}
 	},
 	getAndPlotAircraft = function () {
+		var boundingBox = getBoundingBox();
 		$.ajax({
 			url: 'http://rachelPrudden:a3db0b3725f7a4f4a20525e78afe557cecdc554c@flightxml.flightaware.com/json/FlightXML2/Search',
 			data: {
-				query: '-aboveAltitude 250 -latlong  {52.143602 -6.300659 49.869857 -1.049194}'
+				query: '-aboveAltitude 250 -latlong  {'+boundingBox.nw.lat+' '+boundingBox.nw.lon+' '+boundingBox.se.lat+' '+boundingBox.se.lon+'}'
 			},
 				success: function (result) {
 				buildHistory(result.SearchResult.aircraft);
@@ -104,10 +119,22 @@ var yourLocation = {lat:50.718412, lon:-3.533899},
 		});
 	};
 $(document).ready(function () {
-	L.marker([yourLocation.lat,yourLocation.lon]).addTo(map);
 	L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {}).addTo(map);
-	getAndPlotAircraft();
-	window.setInterval(function(){
-		getAndPlotAircraft();
-	}, 10000);
+	if ("geolocation" in navigator) {
+		navigator.geolocation.getCurrentPosition(function (position){
+			console.info('locating you...');
+			yourLocation.lat = position.coords.latitude;
+			yourLocation.lon = position.coords.longitude;
+			init();
+		},
+		function () {
+			console.info('Defaulting location to Exeter');
+			alert('Can\'t get your location, so we\'ll use Exeter');
+			init();
+		});
+	} else {
+		console.info('No geolocation support, defaulting to Exeter');
+		alert('We can\'t find you, so we\'ll use Exeter UK as your location');
+		init();
+	}
 });
