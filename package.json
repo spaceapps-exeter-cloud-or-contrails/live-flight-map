@@ -1,0 +1,25 @@
+{
+  "name": "live-flight-map",
+  "version": "0.0.2",
+  "description": "Space Apps 2016 cloud or contrails challenge",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spaceapps-exeter-cloud-or-contrails/live-flight-map.git"
+  },
+  "keywords": [
+    "SpaceApps",
+    "2016",
+    "exeter"
+  ],
+  "bugs": {
+    "url": "https://github.com/spaceapps-exeter-cloud-or-contrails/live-flight-map/issues"
+  },
+  "homepage": "https://github.com/spaceapps-exeter-cloud-or-contrails/live-flight-map#readme",
+  "dependencies": {
+    "leaflet-rotatedmarker": "^0.1.0"
+  }
+}
